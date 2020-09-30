@@ -9,6 +9,7 @@ import polyglot
 from polyglot.text import Text, Word
 from polyglot.detect import Detector
 import json
+from joblib import dump, load
 
 @api_view(['GET', 'POST'])
 def view_test(request):
@@ -22,6 +23,22 @@ def view_test(request):
         body_unicode = request.body.decode('utf-8')
         body = json.loads(body_unicode)
         content = body['text']
+        modelBOfWords = load('midanse/util/modeloBagOfWords.joblib')    
+        trasnformedTextBofW = modelBOfWords.transform([content])
+
+        clf = load('midanse/util/lrmodel.joblib')
+        y = clf.predict(trasnformedTextBofW)
+
+  
+
         detector = Detector(content)
         print(detector.language.name)
-        return Response({'name':detector.language.name,'code':detector.language.code,'confidence':detector.language.confidence}, status=status.HTTP_201_CREATED)
+        return Response({'name':detector.language.name,'code':detector.language.code,'confidence':detector.language.confidence,'feeling':y})
+
+
+def model(self, parameter_list):
+    clf = load('midanse/util/lrmodel.joblib')
+    y = clf.predict()
+    return y
+
+   
